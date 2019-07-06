@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">MyMusic</string>
+    <string name="title_music">Music</string>
+    <string name="title_shuffle">SHUFFLE ALL</string>
+</resources>

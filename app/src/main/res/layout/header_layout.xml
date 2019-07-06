@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout android:layout_height="190dp"
+    android:layout_width="match_parent"
+    android:background="@color/colorPrimary"
+    android:padding="16dp"
+    android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
+    android:orientation="vertical"
+    android:gravity="bottom"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+    
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:text="@string/title_music"
+        android:gravity="bottom"
+        android:textSize="50dp"
+        android:textColor="@color/white"
+        android:textAppearance="@style/TextAppearance.AppCompat.Body1"/>
+
+
+</LinearLayout>
