@@ -1,6 +1,5 @@
 package com.example.mymusic;
 
-
 import android.content.Intent;
 import android.content.SearchRecentSuggestionsProvider;
 import android.media.MediaPlayer;
@@ -26,6 +25,7 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
+import android.widget.PopupMenu;
 import android.widget.SearchView;
 import android.widget.SeekBar;
 import android.widget.TextView;
@@ -38,19 +38,20 @@ import java.util.Arrays;
 import java.util.List;
 
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuItemClickListener {
 
     private Toolbar toolbar;
     private DrawerLayout drawerLayout;
     private NavigationView navigationView;
-    private NavigationView navigationOption;
+
+
 
     ListView lvSong;
     ArrayList<Song> songs;
     MusicAdapter musicAdapter;
 
-    MediaPlayer mediaPlayer;
     static int pos = 0;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -71,7 +72,7 @@ public class MainActivity extends AppCompatActivity {
         navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
-                switch (menuItem.getItemId()) {
+                    switch (menuItem.getItemId()) {
                     case R.id.nav_album:
                         menuItem.setChecked(true);
                         displayMessage("Albums...");
@@ -103,47 +104,57 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-//        navigationOption = (NavigationView) findViewById(R.id.navigation_option);
-//
-//        navigationOption.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
-//            @Override
-//            public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
-//                switch (menuItem.getItemId()){
-//                    case R.id.nav_add_playlist:
-//                        menuItem.setChecked(true);
-//                        Toast.makeText(MainActivity.this, "Add Playlist", Toast.LENGTH_SHORT).show();
-//                        return true;
-//
-//                    case R.id.nav_go_album:
-//                        menuItem.setChecked(true);
-//                        Toast.makeText(MainActivity.this, "Go to Album", Toast.LENGTH_SHORT).show();
-//                        return true;
-//                    case R.id.nav_go_artist:
-//                        menuItem.setChecked(true);
-//                        Toast.makeText(MainActivity.this, "Go to Artist", Toast.LENGTH_SHORT).show();
-//                        return true;
-//                }
-//                return false;
-//            }
-//        });
 
         lvSong = (ListView) findViewById(R.id.lv_list_song);
 
         musicAdapter = new MusicAdapter(this,addSong());
         lvSong.setAdapter(musicAdapter);
 
+        lvSong.setAdapter(musicAdapter);
         // click listview
         lvSong.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+
                     Intent intent = new Intent(MainActivity.this, PlayerActivity.class);
                     pos = position;
                     startActivity(intent);
+
 
             }
         });
 
 
+    }
+
+
+    // show menu bài hát
+    public void showMenuPopup(View v){
+        PopupMenu popupMenu = new PopupMenu(this,v);
+        popupMenu.setOnMenuItemClickListener(this);
+        popupMenu.inflate(R.menu.menu_popup);
+        popupMenu.show();
+    }
+
+    // xử lý sự kiện click menu bài hát(xóa, click đường dẫn đến album, artist,..
+    @Override
+    public boolean onMenuItemClick(MenuItem item) {
+        switch (item.getItemId()){
+            case R.id.menu_add_playlist:
+                Toast.makeText(MainActivity.this, "Add to playlist", Toast.LENGTH_SHORT).show();
+                return true;
+            case R.id.menu_artist:
+                Toast.makeText(MainActivity.this, "Go to Artist", Toast.LENGTH_SHORT).show();
+                return true;
+            case R.id.menu_next:
+                Toast.makeText(MainActivity.this, "Play next", Toast.LENGTH_SHORT).show();
+                return true;
+            case R.id.menu_delete:
+                songs.remove(songs.get(2));
+                return true;
+            default:
+                return  false;
+        }
     }
 
     // ham add bai hat
@@ -158,8 +169,8 @@ public class MainActivity extends AppCompatActivity {
         return songs;
     }
 
-//
-//    @Override
+
+   @Override
     public boolean onCreateOptionsMenu(Menu menu) {
 
         getMenuInflater().inflate(R.menu.toolbar_menu, menu);
@@ -200,6 +211,7 @@ public class MainActivity extends AppCompatActivity {
         }
         return super.onOptionsItemSelected(item);
     }
+
 }
 
 

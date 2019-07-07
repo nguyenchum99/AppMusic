@@ -39,9 +39,12 @@ class PlayerActivity extends MainActivity {
     TextView tvTimeDuration;
     ImageView imgSongPlayer;
 
+    MediaPlayer mediaPlayer;
+
     int countClickRepeat = 0;
+    int countclickShuffle = 0 ;
     int randomElement = 0;
-    int i = 0;
+
 
 
     @Override
@@ -51,7 +54,7 @@ class PlayerActivity extends MainActivity {
 
         getWidget();
         playingMusic();
-        //autoMoveSong();
+        autoMoveSong();
         playerHandler();
 
 
@@ -60,31 +63,28 @@ class PlayerActivity extends MainActivity {
     // hàm chơi nhạc
     public void playingMusic() {
 
-        Toast.makeText(PlayerActivity.this, "position " + pos, Toast.LENGTH_SHORT).show();
-        tvSongName.setText(songs.get(pos).getTitle());
-        imgSongPlayer.setBackgroundResource(R.mipmap.music);
-        mediaPlayer = MediaPlayer.create(PlayerActivity.this, songs.get(pos).getId());
-        mediaPlayer.start();
-        setTimeTotal();
-        updateTimeSong();
+            Toast.makeText(PlayerActivity.this, "position " + pos, Toast.LENGTH_SHORT).show();
+            tvSongName.setText(songs.get(pos).getTitle());
+            imgSongPlayer.setBackgroundResource(R.mipmap.music);
+            mediaPlayer = MediaPlayer.create(PlayerActivity.this, songs.get(pos).getId());
+            mediaPlayer.start();
+            setTimeTotal();
+            updateTimeSong();
+
     }
 
     // ham kiem tra bai hat da phat het -> tu dong chuyen xuong bai tiep theo
-    public void autoMoveSong() {
-
+    public void autoMoveSong(){
         mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
             @Override
             public void onCompletion(MediaPlayer mp) {
-
-                Toast.makeText(PlayerActivity.this, "position " + pos, Toast.LENGTH_SHORT).show();
-                tvSongName.setText(songs.get(pos).getTitle());
-                mediaPlayer = MediaPlayer.create(PlayerActivity.this, songs.get(pos).getId());
-                mediaPlayer.start();
-                setTimeTotal();
-                updateTimeSong();
+                pos++;
+                playingMusic();
+                autoMoveSong();
             }
         });
-  }
+
+    }
 
         //hàm xử lý nút button
         public void playerHandler(){
@@ -150,8 +150,7 @@ class PlayerActivity extends MainActivity {
                     // xu ly su kien phat het danh sach cho den khi nao an nut dung
                     if (countClickRepeat == 1) {
                         btnRepeat.setBackgroundResource(R.drawable.ic_repeat_black);
-                        // repeatSong();
-                        // autoMoveSong();
+                        repeatAllSong();
                     }
                     // phat chi 1 bai
                     if (countClickRepeat == 2) {
@@ -161,35 +160,30 @@ class PlayerActivity extends MainActivity {
                     if (countClickRepeat == 3) {
                         btnRepeat.setBackgroundResource(R.drawable.ic_repeat);
                         countClickRepeat = 0;
-
-                        // autoMoveSong();
+                        autoMoveSong();
                     }
 
                 }
             });
-//
+
+
         btnShuffle.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                pos = getRandomElement();
-                btnShuffle.setBackgroundResource(R.drawable.ic_repeat_black);
-                btnNext.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        playingMusic();
-                    }
-                });
-
-                btnPrevious.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        playingMusic();
-                    }
-                });
-
+                countclickShuffle++;
+                if(countclickShuffle == 1){
+                    btnShuffle.setBackgroundResource(R.drawable.ic_shuffle_black);
+                    shuffleSong();
+                }
+                if(countclickShuffle == 2){
+                    countclickShuffle = 0;
+                    btnShuffle.setBackgroundResource(R.drawable.ic_shuffle);
+                    autoMoveSong();
+                }
             }
+
         });
-//
+
             seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
                 @Override
                 public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
@@ -209,12 +203,62 @@ class PlayerActivity extends MainActivity {
 
         }
 
+
+
+    // hàm chạy tất cả các bài hát
+    public void repeatAllSong(){
+        mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+            @Override
+            public void onCompletion(MediaPlayer mp) {
+                pos++;
+                if(pos == songs.size() -1)
+                    pos = 0;
+                playingMusic();
+                repeatAllSong();
+            }
+        });
+    }
+
    //hàm xử lý chạy ngẫu nhiên bài hát
     public void shuffleSong(){
-        pos = getRandomElement();
-        playingMusic();
-        //setTimeTotal();
-        //updateTimeSong();
+        mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+            @Override
+            public void onCompletion(MediaPlayer mp) {
+                pos = getRandomElement();
+                playingMusic();
+                shuffleSong();
+            }
+        });
+
+        btnNext.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                pos = getRandomElement();
+                if(mediaPlayer.isPlaying()){
+                    mediaPlayer.stop();
+                    playingMusic();
+                }
+                else{
+                    playingMusic();
+                }
+
+            }
+        });
+
+        btnPrevious.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                pos = getRandomElement();
+                if(mediaPlayer.isPlaying()){
+                    mediaPlayer.stop();
+                }
+                else{
+                    playingMusic();
+                }
+            }
+        });
+
+
     }
 
     // hàm xử lý chỉ phát 1 bài
@@ -233,19 +277,8 @@ class PlayerActivity extends MainActivity {
             }
         });
     }
-//
-//    //hàm phát nhạc repeat
-//    public void repeatSong(){
-//        autoMoveSong();
-//        if(pos == songs.size() -1){
-//            pos = 0;
-//            playingMusic();
-//            autoMoveSong();
-//        }
-//
-//    }
-//
-//    //hàm lấy bài hát ngẫu nhiên
+
+    //hàm lấy bài hát ngẫu nhiên
     public int getRandomElement(){
         Random random = new Random();
         randomElement = random.nextInt(songs.size());
